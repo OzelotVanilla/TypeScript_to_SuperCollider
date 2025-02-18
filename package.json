@@ -1,0 +1,56 @@
+{
+    "name": "tstosc",
+    "version": "0.0.1",
+    "description": "A transpiler that convert TypeScript to SuperCollider's SCLang.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/OzelotVanilla/TypeScript_to_SuperCollider"
+    },
+    "bin": {
+        "tstosc": "dist/cli/cli.js"
+    },
+    "type": "module",
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": "./dist/index.js"
+    },
+    "files": [
+        "dist/",
+        "license",
+        "readme.md"
+    ],
+    "scripts": {
+        "build": "tsup --config ./tsup.config.ts",
+        "test": "NODE_OPTIONS=\"$NODE_OPTIONS --input-type=module\" pnpm exec jest --config jestconfig.ts --silent=false"
+    },
+    "keywords": [
+        "supercollider",
+        "transpiler",
+        "typescript",
+        "ts",
+        "sclang"
+    ],
+    "author": "Ozelot Vanilla",
+    "license": "LGPL-3.0-or-later",
+    "dependencies": {
+        "ansis": "^3.10.0",
+        "minimist": "^1.2.8",
+        "readline-sync": "^1.4.10",
+        "typescript": "^5.7.3",
+        "wrap-ansi": "^9.0.0"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.5.14",
+        "@types/minimist": "^1.2.5",
+        "@types/node": "^22.10.10",
+        "@types/readline-sync": "^1.4.8",
+        "esbuild-fix-imports-plugin": "^1.0.11",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.2.5",
+        "ts-node": "^10.9.2",
+        "tsup": "^8.3.6",
+        "tsx": "^4.19.2"
+    }
+}

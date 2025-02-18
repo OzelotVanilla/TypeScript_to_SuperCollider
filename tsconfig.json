@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "lib": [
+            "esnext",
+            "dom"
+        ],
+        "declaration": true,
+        "rootDir": ".",
+        "outDir": "./dist",
+        "strict": true,
+        "allowJs": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "resolvePackageJsonExports": true,
+        "allowImportingTsExtensions": false,
+        "isolatedModules": false,
+        "experimentalDecorators": true
+    },
+    "include": [ "src", "test" ],
+    "files": [
+        "src/prelude.ts"
+    ],
+    "exclude": [ "node_modules" ]
+}
