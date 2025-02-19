@@ -307,9 +307,18 @@ export function isMethod(
     generator_context: GeneratorContext
 )
 {
-    const node_type = generator_context.compiler_program.getTypeChecker().getTypeAtLocation(node)
-    return "symbol" in node_type
-        && (node_type.symbol.flags & ts.SymbolFlags.Method) != 0
+    if (ts.isPropertyAccessExpression(node))
+    {
+        // If left side of a property-access expression is an object literal,
+        //  `node` will not be considered method due to polyfill implementation of object literal in SCLang.
+        return !isStoringObjectLiteral(node.expression, generator_context)
+    }
+    else
+    {
+        const node_type = generator_context.compiler_program.getTypeChecker().getTypeAtLocation(node)
+        return "symbol" in node_type
+            && (node_type.symbol.flags & ts.SymbolFlags.Method) != 0
+    }
 }
 
 export function convertTSCallExpressionToSC(
@@ -325,8 +334,7 @@ export function convertTSCallExpressionToSC(
         : convertTSExpressionToSC(e.expression, generator_context)
 
     // SCLang need a `.` (`.value`) for calling functions, but not method.
-    const dot_or_not = (ts.isPropertyAccessExpression(e.expression)
-        || isMethod(e.expression, generator_context) || is_left_side_a_constructor_super)
+    const dot_or_not = (isMethod(e.expression, generator_context) || is_left_side_a_constructor_super)
         ? ""
         : "."
 
