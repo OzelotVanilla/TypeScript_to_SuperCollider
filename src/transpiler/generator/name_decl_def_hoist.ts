@@ -1,7 +1,8 @@
 import ts from "typescript"
 import { bin, zip, ZipOption } from "../../util/util"
-import { convertTSExpressionToSC, escapeForSCVarIfNeeded, hasSelfIndecrExpression } from "./ts_to_sc_convert/expr_conv"
+import { convertTSExpressionToSC, hasSelfIndecrExpression } from "./ts_to_sc_convert/expr_conv"
 import { default_generator_context, GeneratorContext } from "./context"
+import { escapeForSCVarIfNeeded } from "./ts_to_sc_convert/identifier_conv"
 
 /**
  * This scans the variable/constant defined in this scope, and output the SCLang code as string.

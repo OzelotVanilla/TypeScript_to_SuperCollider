@@ -1,11 +1,12 @@
 import ts from "typescript";
 import { UnsupportedTypeError } from "../../../util/error";
 import { Result } from "../../../util/Result";
-import { convertTSExpressionToSC, escapeForSCVarIfNeeded } from "./expr_conv";
+import { convertTSExpressionToSC } from "./expr_conv";
 import { default_generator_context, GeneratorContext } from "../context";
 import { convertTSCodeBlockToSC, hasEarlyReturnIn } from "./code_block_conv";
 import { getDefDeclOutput, solveRecurBinding } from "../name_decl_def_hoist";
 import { bifilter } from "../../../util/util";
+import { escapeForSCVarIfNeeded } from "./identifier_conv";
 
 /**
  * Constant array to store all supported `SyntaxKind`.
@@ -92,14 +93,16 @@ export function convertTSLiteralToSC(
 
         case ts.SyntaxKind.RegularExpressionLiteral: // TODO: Not supported yet.
         default:
-            if (isNullOrUndefined(literal))
+            if (ts.isIdentifier(literal))
             {
-                console.warn(
-                    `Please use SCLang's "nil" instead of TypeScript's "null" or "undefined",`,
-                    ` since SCLang only have "nil" for empty values,`,
-                    ` and using "null" or "undefined" may result in confusing result.`
-                )
-                return `nil`
+                switch (literal.text)
+                {
+                    case "undefined": return "TSTOSC.undefined"
+                    case "NaN": return "TSTOSC.nan"
+                    case "Infinity": return "TSTOSC.infinity"
+                    // TODO: How should `globalThis` being proceed.
+                    // case "globalThis": return "TSTOSC.globalThis"
+                }
             }
 
             throw UnsupportedTypeError.forNodeWithSyntaxKind(literal, "literal")
@@ -194,7 +197,7 @@ export function convertTSNumberToSC(
             radix_prefix = "2r"; break
     }
 
-    return `${radix_prefix}${number_part}${force_to_float_suffix}`
+    return `TSTOSC__Number.new(${radix_prefix}${number_part}${force_to_float_suffix})`
 }
 
 enum OutOfSCIntRange
@@ -344,7 +347,9 @@ export function convertTSObjectToSC(
             name = getPropertyName(p)
 
             value = p.body != undefined
-                ? convertTSFunctionToSC(p as TSFunctionEssential, generator_context.willGenerateMethod())
+                // Do NOT add `willGenerateMethod()` to `generator_context` here.
+                // If generate `^` as return, the interpreter may be killed.
+                ? convertTSFunctionToSC(p as TSFunctionEssential, generator_context)
                 : "{ |tstosc__this_param| }"
         }
         // Spread-assignment is handled specially
@@ -642,8 +647,9 @@ export type TSFunctionEssential = ts.Node & Pick<
 type TSLiteralSyntaxKind = (typeof supported_literal_syntax_kind)[number]
 
 /**
- * Check if the node is literal, or literal-like expression
- * (including `ArrayLiteralExpression`, `ObjectLiteralExpression`,
+ * Check if the node is literal (including `undefined` or `NaN`),
+ *  or literal-like expression
+ *  (including `ArrayLiteralExpression`, `ObjectLiteralExpression`,
  *  `FunctionExpression` and `ArrowFunction`).
  * 
  * ### Warning
@@ -657,4 +663,6 @@ export function isTSLiteral(node: ts.Node): node is TSLiteral
         || ts.isArrayLiteralExpression(node)
         || ts.isObjectLiteralExpression(node)
         || isNullOrUndefined(node)
+        || (ts.isIdentifier(node)
+            && (node.text == "NaN" || node.text == "Infinity"))
 }

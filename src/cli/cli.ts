@@ -14,6 +14,7 @@ import { askToProceedOrAbort as askIfOkToProceed, dim, error, printError, succes
 import path from "path"
 import fs from "fs"
 import { convertTSSourceFileToSC, findPreprocessingNeededByCached } from "../transpiler/generator/ts_to_sc_convert/file_conv"
+import { generateTStoSCRuntimeEnvIfNecessary } from "../polyfill/polyfill_env_generate"
 const [cli_global_argv, cli_positional_argvs] = seperateArgs(process.argv.slice(2))
 const global_arg: CLIGlobalArgs = minimist(cli_global_argv, {
     alias: {
@@ -58,13 +59,13 @@ async function main()
             {
                 console.log(error(
                     `Error: User Extension Dir cannot be set to "${tstosc_helper_file_path}".\n` +
-                    `This is the directory for TStoSC to store its helper file, but not for user's class.\n` +
+                    `This is the directory for TStoSC to store its helper file (e.g., polyfill classes), but not for user's class.\n` +
                     `You may avoid this by setting another project name by global option "--project-name" ("-p").\n\n` +
                     `Aborted: Not OK to over-write files in User Extension Dir.`
                 ))
                 return
             }
-            else { writeTStoSCHelperFile(tstosc_helper_file_path) }
+            else { generateTStoSCRuntimeEnvIfNecessary(tstosc_helper_file_path) }
             // Check if OK to over-write User Extension Dir.
             {
                 if (!yes_to_all && fs.existsSync(project_extension_path) && !askIfOkToProceed(warn(
@@ -202,21 +203,6 @@ function showNameAndVersion()
 function showVersion()
 {
     console.log(`v${version}`)
-}
-
-function writeTStoSCHelperFile(helper_file_path: string)
-{
-    if (fs.existsSync(helper_file_path)) { fs.rmSync(helper_file_path, { recursive: true }) }
-    fs.mkdirSync(helper_file_path, { recursive: true })
-
-    // Helper Class.
-    const helper_class_folder_path = path.resolve(helper_file_path, "class")
-    fs.mkdirSync(helper_class_folder_path)
-    const helper_class_file_path = path.resolve(helper_class_folder_path, "helper_class.sc")
-    fs.writeFileSync(
-        helper_class_file_path,
-        "TSTOSC__ObjectLiteral\n{\n    var storing_dict;\n\n    *new\n    { |object_literal|\n        ^super.new.initTSTOSC_PlainObject(object_literal)\n    }\n\n    initTSTOSC_PlainObject\n    { |object_literal|\n        storing_dict = object_literal;\n        ^this\n    }\n\n    at\n    { |selector|\n        if (storing_dict.includesKey(selector),\n            {\n                var val = storing_dict.at(selector);\n                if (val.isKindOf(Function),\n                    { ^{ |...a| val.valueArray([this] ++ a) ; } ; },\n                    { ^val ; }\n                ) ;\n            },\n            { nil ; }\n        ) ;\n    }\n}"
-    )
 }
 
 main()
