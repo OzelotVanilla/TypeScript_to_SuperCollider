@@ -2,6 +2,7 @@ import ts from "typescript";
 import { convertToSCSymbol, convertTSLiteralToSC, isTSLiteral } from "./literal_conv";
 import { RuntimeError, UnsupportedTypeError } from "../../../util/error";
 import { default_generator_context, GeneratorContext } from "../context";
+import { convertTSIdentifierToSC, escapeForSCVarIfNeeded, isJavaScriptBuiltinClass } from "./identifier_conv";
 
 export const supported_expression_syntax_kind = [
     ts.SyntaxKind.ArrayLiteralExpression, // Considered and processed as literal.
@@ -55,13 +56,7 @@ export function convertTSExpressionToSC(
 {
     // Early returns:
     if (isTSLiteral(expr)) { return convertTSLiteralToSC(expr, generator_context) }
-    if (ts.isIdentifier(expr))
-    {
-        return (generator_context.is_generating_class_name
-            ? escapeForSCClassIfNeeded
-            : escapeForSCVarIfNeeded
-        )(expr.text)
-    }
+    if (ts.isIdentifier(expr)) { return convertTSIdentifierToSC(expr, generator_context) }
 
     // If `has_self_indecr_operator` is `true`, means not handled yet.
     // If is `false`, means no need to process, or pre-process already done.
@@ -352,7 +347,11 @@ export function convertTSNewExpressionToSC(
     generator_context: GeneratorContext = default_generator_context
 )
 {
-    return convertTSExpressionToSC(e.expression, generator_context.willGenerateClassName())
+    let class_name: string = ts.isIdentifier(e.expression) && isJavaScriptBuiltinClass(e.expression, generator_context)
+        ? "TSTOSC__" + e.expression.text
+        : convertTSExpressionToSC(e.expression, generator_context.willGenerateClassName())
+
+    return class_name
         + ".new" + "("
         + (e.arguments?.map(a => convertTSExpressionToSC(a, generator_context)).join(", ") ?? "")
         + ")"
@@ -613,83 +612,5 @@ export function convertTSBinaryExpressionToSC(
 
         default:
             throw UnsupportedTypeError.forNodeWithSyntaxKind(e.operatorToken, "operator")
-    }
-}
-
-/**
- * Test if an identifier (including variable, function, or class) will be considered legal in SuperCollider.
- * 
- * * Check if first character is a English letter.
- * * Check if remain characters (if exist) are word-like (`\w` in regex).
- */
-export function isLegalSCIdentifier(name: string)
-{
-    return /^[A-Za-z]\w*$/g.test(name)
-}
-
-/**
- * Test if an variable will be considered legal in SuperCollider.
- * 
- * * Check if first character is a English letter, and it is lower-case.
- * * Check if remain characters (if exist) are word-like (`\w` in regex).
- */
-export function isLegalSCVar(name: string)
-{
-    return isLegalSCIdentifier(name)
-        && "a" <= name[0] && name[0] <= "z"
-}
-
-/**
- * Test if an class will be considered legal in SuperCollider.
- * 
- * * Check if first character is a English letter, and it is Upper-Case.
- * * Check if remain characters (if exist) are word-like (`\w` in regex).
- */
-export function isLegalSCClass(name: string)
-{
-    return isLegalSCIdentifier(name)
-        && "A" <= name[0] && name[0] <= "Z"
-}
-
-// TODO: A better substitution method.
-// Current one is not reliable if `esc_seq` is not the same, and it has chance of getting collision.
-
-/**
- * Escape the inputed variable's name, if it is not legal in SCLang.
- */
-export function escapeForSCVarIfNeeded(name: string, esc_seq: string = "escvar_")
-{
-    if (isLegalSCVar(name)) { return name }
-    else
-    {
-        const escaped_name = esc_seq + name.replace(/\W/g, "_")
-        console.warn(
-            `The variable name "${name}" is illegal in SCLang, and will be replaced to "${escaped_name}".`
-        )
-        return escaped_name
-    }
-}
-
-/**
- * Escape the inputed function/method's name, if it is not legal in SCLang.
- */
-export function escapeForSCFunctionIfNeeded(name: string, esc_seq: string = "escfunction_")
-{
-    return escapeForSCVarIfNeeded(name, esc_seq)
-}
-
-/**
- * Escape the inputed class's name, if it is not legal in SCLang.
- */
-export function escapeForSCClassIfNeeded(name: string, esc_seq: string = "ESCCLASS_")
-{
-    if (isLegalSCClass(name)) { return name }
-    else
-    {
-        const escaped_name = esc_seq + name.replace(/\W/g, "_")
-        console.warn(
-            `The class name "${name}" is illegal in SCLang, and will be replaced to "${escaped_name}".`
-        )
-        return escaped_name
     }
 }

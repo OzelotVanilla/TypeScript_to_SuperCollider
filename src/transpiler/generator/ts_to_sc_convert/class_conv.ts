@@ -1,10 +1,11 @@
 import ts from "typescript";
 import { GeneratorContext, default_generator_context } from "../context";
 import { UnsupportedTypeError } from "../../../util/error";
-import { convertTSExpressionToSC, escapeForSCClassIfNeeded, escapeForSCVarIfNeeded } from "./expr_conv";
+import { convertTSExpressionToSC } from "./expr_conv";
 import { convertTSCodeBlockToSC } from "./code_block_conv";
 import { convertTSFunctionToSC, extractParameters, getArgLine, getDestructingParamSolvingPart, TSDestructingParameter, TSFunctionEssential } from "./literal_conv";
 import { extractVarConstDeclarationAndDefinition } from "../name_decl_def_hoist";
+import { escapeForSCClassIfNeeded, escapeForSCVarIfNeeded } from "./identifier_conv";
 
 let unnamed_class_index = 1
 

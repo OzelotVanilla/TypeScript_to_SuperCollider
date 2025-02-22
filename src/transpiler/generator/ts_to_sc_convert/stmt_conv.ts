@@ -1,12 +1,13 @@
 import ts from "typescript";
 import { default_generator_context, GeneratorContext } from "../context";
-import { convertTSExpressionToSC, escapeForSCVarIfNeeded, isSelfIndecrExpression } from "./expr_conv";
+import { convertTSExpressionToSC, isSelfIndecrExpression } from "./expr_conv";
 import { convertTSCodeBlockToSC } from "./code_block_conv";
 import { convertTSFunctionToSC } from "./literal_conv";
 import { UnsupportedTypeError } from "../../../util/error";
 import { DefDeclCollection, getDefDeclOutput, isAfterwhileInitInitialiser, isLetDeclarationList, solveRecurBinding } from "../name_decl_def_hoist";
 import { hash, isArrayLike } from "../../../util/util";
 import { getTypeOfTSNode } from "../../../util/ts";
+import { escapeForSCVarIfNeeded } from "./identifier_conv";
 
 export const supported_statement_syntax_kind = [
     ts.SyntaxKind.VariableStatement,
