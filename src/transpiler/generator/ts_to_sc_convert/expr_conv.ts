@@ -347,12 +347,28 @@ export function convertTSCallExpressionToSC(
         : result
 }
 
+export function isTSBuiltinClass(
+    node: ts.Node,
+    generator_context: GeneratorContext
+)
+{
+    const node_type = generator_context.compiler_program.getTypeChecker().getTypeAtLocation(node)
+    if (!("symbol" in node_type)) { return false }
+    const decls = node_type.symbol.getDeclarations()
+    if (decls == undefined || decls.length <= 0) { return false }
+    return generator_context.compiler_program.isSourceFileDefaultLibrary(decls[0].getSourceFile())
+}
+
 export function convertTSNewExpressionToSC(
     e: ts.NewExpression,
     generator_context: GeneratorContext = default_generator_context
 )
 {
-    return convertTSExpressionToSC(e.expression, generator_context.willGenerateClassName())
+    let class_name: string = ts.isIdentifier(e.expression) && isTSBuiltinClass(e.expression, generator_context)
+        ? "TSTOSC__" + e.expression.text
+        : convertTSExpressionToSC(e.expression, generator_context.willGenerateClassName())
+
+    return class_name
         + ".new" + "("
         + (e.arguments?.map(a => convertTSExpressionToSC(a, generator_context)).join(", ") ?? "")
         + ")"

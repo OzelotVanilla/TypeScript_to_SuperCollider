@@ -344,7 +344,9 @@ export function convertTSObjectToSC(
             name = getPropertyName(p)
 
             value = p.body != undefined
-                ? convertTSFunctionToSC(p as TSFunctionEssential, generator_context.willGenerateMethod())
+                // Do NOT add `willGenerateMethod()` to `generator_context` here.
+                // If generate `^` as return, the interpreter may be killed.
+                ? convertTSFunctionToSC(p as TSFunctionEssential, generator_context) 
                 : "{ |tstosc__this_param| }"
         }
         // Spread-assignment is handled specially
