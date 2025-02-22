@@ -265,7 +265,7 @@ export function convertTSArrayToSC(
 ): string
 {
     // Need to check if there is spread element.
-    return literal.elements.reduce(
+    return "TSTOSC__Array.from(" + (literal.elements.reduce(
         function (result_until_now, current, current_index)
         {
             const is_last_element = current_index == literal.elements.length - 1
@@ -289,7 +289,7 @@ export function convertTSArrayToSC(
             return result_until_now
         },
         ["["] // Initial value.
-    ).join("")
+    ).join("")) + ")"
 }
 
 export function convertTSObjectToSC(
