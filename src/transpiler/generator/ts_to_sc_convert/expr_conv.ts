@@ -517,7 +517,6 @@ const ts_infix_becoming_binary_operator_to_sc_dict = new Map([
     [ts.SyntaxKind.LessThanToken, "<"], [ts.SyntaxKind.GreaterThanToken, ">"],
     [ts.SyntaxKind.LessThanEqualsToken, "<="], [ts.SyntaxKind.GreaterThanEqualsToken, ">="],
     [ts.SyntaxKind.AmpersandAmpersandToken, "&&"], [ts.SyntaxKind.BarBarToken, "||"],
-    [ts.SyntaxKind.QuestionQuestionToken, "??"]
 ])
 
 /**
@@ -537,6 +536,7 @@ const ts_function_call_becoming_operator_to_sc_dict = new Map([
     [ts.SyntaxKind.AmpersandToken, "bitAnd"], [ts.SyntaxKind.BarToken, "bitOr"], [ts.SyntaxKind.CaretToken, "bitXor"],
     [ts.SyntaxKind.LessThanLessThanToken, "leftShift"], [ts.SyntaxKind.GreaterThanGreaterThanToken, "rightShift"],
     [ts.SyntaxKind.GreaterThanGreaterThanGreaterThanToken, "unsignedRightShift"],
+    [ts.SyntaxKind.QuestionQuestionToken, "TSTOSC.orElse"]
 ])
 
 /**

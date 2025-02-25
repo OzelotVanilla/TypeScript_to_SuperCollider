@@ -90,16 +90,19 @@ export function convertTSLiteralToSC(
         case ts.SyntaxKind.FunctionExpression:
             return convertTSFunctionToSC(literal as TSFunctionEssential, generator_context)
 
+        case ts.SyntaxKind.NullKeyword:
+            return "TSTOSC.null"
+
         case ts.SyntaxKind.RegularExpressionLiteral: // TODO: Not supported yet.
         default:
-            if (isNullOrUndefined(literal))
+            if (ts.isIdentifier(literal) && literal.text == "undefined")
             {
-                console.warn(
-                    `Please use SCLang's "nil" instead of TypeScript's "null" or "undefined",`,
-                    ` since SCLang only have "nil" for empty values,`,
-                    ` and using "null" or "undefined" may result in confusing result.`
-                )
-                return `nil`
+                // console.warn(
+                //     `Please use SCLang's "nil" instead of TypeScript's "null" or "undefined",`,
+                //     ` since SCLang only have "nil" for empty values,`,
+                //     ` and using "null" or "undefined" may result in confusing result.`
+                // )
+                return "TSTOSC.undefined"
             }
 
             throw UnsupportedTypeError.forNodeWithSyntaxKind(literal, "literal")

@@ -3,11 +3,15 @@ import path from "path"
 import { object__class_source_code } from "./ts_builtin_class/TSTOSC__Object"
 import { array__class_source_code } from "./ts_builtin_class/TSTOSC__Array"
 import { object_literal__class_source_code } from "./ts_builtin_class/TSTOSC__ObjectLiteral"
+import { null__class_source_code } from "./ts_builtin_class/TSTOSC__Null"
+import { tstosc_namespace__source_code } from "./ts_builtin_class/TSTOSC"
 
 export const polyfill_entry = new Map<string, string>([
     ["TSTOSC__Object", object__class_source_code],
     ["TSTOSC__Array", array__class_source_code],
     ["TSTOSC__ObjectLiteral", object_literal__class_source_code],
+    ["TSTOSC__Null", null__class_source_code],
+    ["TSTOSC", tstosc_namespace__source_code],
 ])
 
 export function generateTStoSCRuntimeEnvIfNecessary(helper_file_path: string)
