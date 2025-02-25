@@ -91,6 +91,9 @@ export function convertTSLiteralToSC(
         case ts.SyntaxKind.FunctionExpression:
             return convertTSFunctionToSC(literal as TSFunctionEssential, generator_context)
 
+        case ts.SyntaxKind.NullKeyword:
+            return "TSTOSC.null"
+
         case ts.SyntaxKind.RegularExpressionLiteral: // TODO: Not supported yet.
         default:
             if (ts.isIdentifier(literal))
