@@ -8,12 +8,12 @@ TSTOSC__Array : TSTOSC__Object
 
     *new
     { |...params| var first = params[0], second = params[1], array_literal=[] ;
-        if ( and(or(first.isKindOf(Number), first.isKindOf(TSTOSC__Number)), second == nil)
+        if ( and(TSTOSC__Number.tstosc__alikeNumber(first), second == nil),
             // Only give array space.
             { array_literal.grow(first) ; ^super.new.initTSTOSC__Array(array_literal) ; },
             // Collect all items.
             { ^TSTOSC__Array.of(params) ; }
-        );
+        ) ;
     }
 
     initTSTOSC__Array
@@ -26,11 +26,16 @@ TSTOSC__Array : TSTOSC__Object
     { |array_like, mapper=nil, this_arg=nil| mapper = mapper ? { |e| e ; } ;
         if ( this_arg == nil,
             {
-                ^super.new.initTSTOSC__Array(switch (array_like.class,
-                    { Array },         { array_like.collect(mapper.(_, _, array_like)) ; },
-                    { TSTOSC__Array }, { ^array_like.map(mapper) ; },
-                    { Error.new("\\\"Array.from\\\" cannot use " ++ array_like.class ++ " to initialise.").throw() ; }
-                ) ) ;
+                if ( mapper == nil,
+                    { ^super.new.initTSTOSC__Array(array_like.value) ; },
+                    {
+                        ^super.new.initTSTOSC__Array(switch (array_like.class,
+                            { Array },         { array_like.collect(mapper.(_, _, array_like)) ; },
+                            { TSTOSC__Array }, { ^array_like.map(mapper) ; },
+                            { Error.new("\\\"Array.from\\\" cannot use " ++ array_like.class ++ " to initialise.").throw() ; }
+                        ) ) ;
+                    }
+                ) ;
             },
             { this_arg.map(mapper) }
         ) ;
@@ -40,10 +45,12 @@ TSTOSC__Array : TSTOSC__Object
 
     /* For SCLang */
 
-    asString
-    {
-        ^"TSTOSC__Array([" ++ storing_array.collect(_.asString()).join(", ") ++ "])" ;
-    }
+    asString { ^"TSTOSC__Array([" ++ storing_array.collect(_.asString()).join(", ") ++ "])" ; }
+    value { ^storing_array ; }
+
+    /* For other polyfill class */
+
+    *tstosc__alikeArray { |obj| ^or(TSTOSC__Array.isArray(obj), obj.isKindOf(Array)) ; }
 
     /* For methods */
 
