@@ -65,7 +65,7 @@ export function convertTSStatementToSC(
             return convertTSCodeBlockToSC(stmt as ts.Block, generator_context)
 
         case ts.SyntaxKind.FunctionDeclaration:
-            return converTSFunctionDeclarationToSC(stmt as ts.FunctionDeclaration, generator_context)
+            return convertTSFunctionDeclarationToSC(stmt as ts.FunctionDeclaration, generator_context)
 
         case ts.SyntaxKind.ExpressionStatement:
             return convertTSExpressionToSC(
@@ -191,7 +191,7 @@ export function restyleTSVariableStatementToSC(
 /**
  * If function has a name, then already hoisted.
  */
-export function converTSFunctionDeclarationToSC(
+export function convertTSFunctionDeclarationToSC(
     s: ts.FunctionDeclaration,
     generator_context: GeneratorContext = default_generator_context
 )
