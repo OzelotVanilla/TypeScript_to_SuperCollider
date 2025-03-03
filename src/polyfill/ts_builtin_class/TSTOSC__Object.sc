@@ -1,0 +1,3 @@
+TSTOSC__Object
+{
+}

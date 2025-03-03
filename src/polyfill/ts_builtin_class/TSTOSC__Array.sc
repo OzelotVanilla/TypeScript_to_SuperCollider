@@ -1,4 +1,3 @@
-export const array__class_source_code = `
 TSTOSC__Array : TSTOSC__Object
 {
     var storing_array ;
@@ -32,7 +31,7 @@ TSTOSC__Array : TSTOSC__Object
                         ^super.new.initTSTOSC__Array(switch (array_like.class,
                             { Array },         { array_like.collect(mapper.(_, _, array_like)) ; },
                             { TSTOSC__Array }, { ^array_like.map(mapper) ; },
-                            { Error.new("\\\"Array.from\\\" cannot use " ++ array_like.class ++ " to initialise.").throw() ; }
+                            { Error.new("\"Array.from\" cannot use " ++ array_like.class ++ " to initialise.").throw() ; }
                         ) ) ;
                     }
                 ) ;
@@ -205,7 +204,7 @@ TSTOSC__Array : TSTOSC__Object
     toLocaleString
     { |locales=nil, options=nil|
         ^TSTOSC__Array.from(storing_array.collect(
-            { |e, i, a| if (e.respondsTo(\\toLocaleString), { e.toLocaleString(locales, options) ; }, { e.asString() ; } ) ; }
+            { |e, i, a| if (e.respondsTo(\toLocaleString), { e.toLocaleString(locales, options) ; }, { e.asString() ; } ) ; }
         )) ;
     }
 
@@ -234,4 +233,3 @@ TSTOSC__Array : TSTOSC__Object
 
     length { ^storing_array.size ; }
 }
-`.trim()
