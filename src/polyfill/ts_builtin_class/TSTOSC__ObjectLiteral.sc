@@ -1,4 +1,3 @@
-export const object_literal__class_source_code = `
 /**
  * This class is only used for wrap object literal in converted TypeScript code.
  * 
@@ -40,4 +39,3 @@ TSTOSC__ObjectLiteral : TSTOSC__Object
         ) ;
     }
 }
-`.trim()

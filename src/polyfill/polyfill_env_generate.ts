@@ -1,18 +1,5 @@
 import fs from "fs"
 import path from "path"
-import { object__class_source_code } from "./ts_builtin_class/TSTOSC__Object"
-import { array__class_source_code } from "./ts_builtin_class/TSTOSC__Array"
-import { object_literal__class_source_code } from "./ts_builtin_class/TSTOSC__ObjectLiteral"
-import { null__class_source_code } from "./ts_builtin_class/TSTOSC__Null"
-import { tstosc_namespace__source_code } from "./ts_builtin_class/TSTOSC"
-
-export const polyfill_entry = new Map<string, string>([
-    ["TSTOSC__Object", object__class_source_code],
-    ["TSTOSC__Array", array__class_source_code],
-    ["TSTOSC__ObjectLiteral", object_literal__class_source_code],
-    ["TSTOSC__Null", null__class_source_code],
-    ["TSTOSC", tstosc_namespace__source_code],
-])
 
 export function generateTStoSCRuntimeEnvIfNecessary(helper_file_path: string)
 {
@@ -20,11 +7,15 @@ export function generateTStoSCRuntimeEnvIfNecessary(helper_file_path: string)
     fs.mkdirSync(helper_file_path, { recursive: true })
 
     // Polyfill Class.
+    const polyfill_src_file_path = path.resolve(import.meta.dirname, "ts_builtin_class")
     const helper_class_folder_path = path.resolve(helper_file_path, "class")
     fs.mkdirSync(helper_class_folder_path)
-    for (const [class_name, source_code] of polyfill_entry.entries())
-    {
-        const file_path = path.resolve(helper_class_folder_path, class_name + ".sc")
-        fs.writeFileSync(file_path, source_code)
-    }
+    fs.readdirSync(polyfill_src_file_path)
+        .filter(file_name => file_name.endsWith(".sc"))
+        .forEach(
+            file_name => fs.copyFileSync(
+                path.resolve(polyfill_src_file_path, file_name),
+                path.resolve(helper_class_folder_path, file_name)
+            )
+        )
 }
