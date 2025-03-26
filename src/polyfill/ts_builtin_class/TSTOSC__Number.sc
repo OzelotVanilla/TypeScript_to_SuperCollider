@@ -199,7 +199,7 @@ TSTOSC__Number : TSTOSC__Object
     }
 
     /** for JavaScript compatibility */
-    *valueOf { ^this ; }
+    valueOf { ^this ; }
 
     /* for operator fallback */
     doesNotUnderstand 

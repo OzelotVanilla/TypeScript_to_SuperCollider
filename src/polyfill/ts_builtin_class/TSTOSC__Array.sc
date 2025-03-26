@@ -216,7 +216,7 @@ TSTOSC__Array : TSTOSC__Object
     
     toString { ^storing_array.join(",") ; }
 
-    unshift { |...items| storing_array.grow(items.size) ; storing_array = items ++ storing_array; ^storing_array.size ; }
+    unshift { |...items| storing_array.grow(items.size) ; storing_array = items ++ storing_array ; ^storing_array.size ; }
 
     values { ^TSTOSC__Array.from(storing_array) ; }
 
@@ -231,5 +231,6 @@ TSTOSC__Array : TSTOSC__Object
 
     /* For properties */
 
-    length { ^storing_array.size ; }
+    length { ^TSTOSC__Number.new(this.tstosc__length) ; }
+    tstosc__length { ^storing_array.size ; }
 }
