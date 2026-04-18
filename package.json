@@ -1,6 +1,6 @@
 {
     "name": "tstosc",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "A transpiler that convert TypeScript to SuperCollider's SCLang.",
     "repository": {
         "type": "git",
